@@ -50,8 +50,7 @@ export default async function AttendeesPage() {
                 <td>{attendee.gender || "-"}</td>
                 <td>{attendee.boarding ? "Yes" : "No"}</td>
                 <td>{attendee.boarding_days ?? "-"}</td>
-                <td>{new Date(attendee.created_at).toLocaleString()}</td>
-              </tr>
+                <td>{new Date(attendee.created_at).toLocaleString()}</td> </tr>
             ))}
             {!attendees.length && (
               <tr>
