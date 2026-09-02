@@ -152,6 +152,68 @@ select:focus {
   color: #7a4a24;
 }
 
+.upload-queue {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.upload-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 12px 14px;
+  background: #ffffff;
+}
+
+.upload-item div {
+  display: grid;
+  gap: 3px;
+}
+
+.upload-item strong {
+  color: #111827;
+  font-size: 14px;
+}
+
+.upload-item span {
+  color: #6b7280;
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+.upload-item small {
+  color: #991b1b;
+  font-size: 12px;
+}
+
+.upload-item[data-status="successful"] {
+  border-color: #86efac;
+}
+
+.upload-item[data-status="failed"] {
+  border-color: #fecaca;
+}
+
+.upload-item[data-status="uploading"] {
+  opacity: 0.72;
+}
+
+.retry-button {
+  min-height: 34px;
+  border: 1px solid #7a4a24;
+  border-radius: 0;
+  padding: 6px 12px;
+  background: #ffffff;
+  color: #7a4a24;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .status {
   border-radius: 6px;
   padding: 12px 14px;

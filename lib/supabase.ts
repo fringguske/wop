@@ -34,7 +34,7 @@ export type Attendee = {
   created_at: string;
 };
 
-type AttendeeInsert = {
+export type AttendeeInsert = {
   full_name: string;
   phone_number?: string | null;
   address?: string | null;
