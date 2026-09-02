@@ -119,7 +119,7 @@ select:focus {
 .primary-link,
 .secondary-link {
   min-height: 44px;
-  border-radius: 6px;
+  border-radius: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -131,19 +131,25 @@ select:focus {
 
 .primary-button,
 .primary-link {
-  border: 1px solid #111827;
-  background: #111827;
+  border: 1px solid #7a4a24;
+  background: #7a4a24;
   color: #ffffff;
 }
 
 .primary-button {
   cursor: pointer;
+  transition: opacity 160ms ease, background-color 160ms ease;
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .secondary-link {
-  border: 1px solid #d1d5db;
+  border: 1px solid #7a4a24;
   background: #ffffff;
-  color: #111827;
+  color: #7a4a24;
 }
 
 .status {

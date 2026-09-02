@@ -1,4 +1,4 @@
-import { login } from "./actions";
+import LoginForm from "./LoginForm";
 
 export default async function LoginPage({
   searchParams,
@@ -12,15 +12,7 @@ export default async function LoginPage({
       <section className="login-panel">
         <p className="eyebrow">Event access</p>
         <h1>Officer login</h1>
-        <form action={login} className="login-form">
-          <label>
-            One-time password
-            <input type="password" name="password" autoComplete="current-password" required />
-          </label>
-          <button className="primary-button" type="submit">
-            Enter
-          </button>
-        </form>
+        <LoginForm />
         {error === "config" && <p className="status status--error">Set APP_PASSWORD in your environment file.</p>}
         {error && error !== "config" && <p className="status status--error">Wrong password. Try again.</p>}
       </section>

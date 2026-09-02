@@ -7,9 +7,10 @@ const categories = ["Delegate", "Worker", "Clergy", "Guest", "Usher", "Choir", "
 
 export default function RegisterForm() {
   const [boarding, setBoarding] = useState("no");
+  const [submitted, setSubmitted] = useState(false);
 
   return (
-    <form action={registerAttendee} className="form-grid">
+    <form action={registerAttendee} className="form-grid" onSubmit={() => setSubmitted(true)}>
       <label>
         Full name
         <input name="full_name" autoComplete="name" required />
@@ -70,8 +71,8 @@ export default function RegisterForm() {
         </label>
       )}
 
-      <button className="primary-button span-2" type="submit">
-        Save attendee
+      <button className="primary-button span-2" type="submit" disabled={submitted}>
+        {submitted ? "Saving..." : "Save attendee"}
       </button>
     </form>
   );
