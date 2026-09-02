@@ -107,8 +107,8 @@ select {
 
 input:focus,
 select:focus {
-  outline: 3px solid #bfdbfe;
-  border-color: #2563eb;
+  outline: none;
+  border-color: none;
 }
 
 .span-2 {
