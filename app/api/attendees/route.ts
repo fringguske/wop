@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { AUTH_COOKIE_NAME, expectedCookieValue } from "@/lib/auth";
+import { AUTH_COOKIE_NAME, verifyAuthToken } from "@/lib/auth";
 import { getSupabase, isSupabaseConfigured, type AttendeeInsert } from "@/lib/supabase";
 
 function cleanText(value: unknown) {
@@ -8,10 +8,10 @@ function cleanText(value: unknown) {
 }
 
 export async function POST(request: Request) {
-  const expected = await expectedCookieValue();
   const cookieStore = await cookies();
+  const role = await verifyAuthToken(cookieStore.get(AUTH_COOKIE_NAME)?.value);
 
-  if (!expected || cookieStore.get(AUTH_COOKIE_NAME)?.value !== expected) {
+  if (role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -35,6 +35,7 @@ export async function POST(request: Request) {
     church: cleanText(body.church),
     gender: cleanText(body.gender),
     category: cleanText(body.category),
+    registration_amount: cleanText(body.registration_amount),
     boarding,
     boarding_days: boarding && Number.isFinite(boardingDaysValue) ? boardingDaysValue : null,
   };

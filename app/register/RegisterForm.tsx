@@ -38,6 +38,7 @@ export default function RegisterForm() {
           church: registration.church,
           category: registration.category,
           gender: registration.gender,
+          registration_amount: registration.registration_amount,
           boarding: registration.boarding,
           boarding_days: registration.boarding_days,
         }),
@@ -96,6 +97,7 @@ export default function RegisterForm() {
       church: formValue(formData, "church") || null,
       category: formValue(formData, "category") || null,
       gender: formValue(formData, "gender") || null,
+      registration_amount: formValue(formData, "registration_amount") || null,
       boarding: isBoarding,
       boarding_days: isBoarding && Number.isFinite(boardingDaysValue) ? boardingDaysValue : null,
       status: "pending",
@@ -158,6 +160,11 @@ export default function RegisterForm() {
             <option value="Female">Female</option>
             <option value="Male">Male</option>
           </select>
+        </label>
+
+        <label>
+          Registration amount
+          <input name="registration_amount" inputMode="decimal" />
         </label>
 
         <label>

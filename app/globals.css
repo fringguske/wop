@@ -152,6 +152,28 @@ select:focus {
   color: #7a4a24;
 }
 
+.logout-button {
+  min-height: 44px;
+  border: 1px solid #7a4a24;
+  border-radius: 0;
+  padding: 10px 16px;
+  background: #ffffff;
+  color: #7a4a24;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 160ms ease, background-color 160ms ease;
+}
+
+.logout-button:hover {
+  opacity: 0.85;
+}
+
+.logout-button:active {
+  opacity: 0.55;
+}
+
 .upload-queue {
   display: grid;
   gap: 10px;
@@ -271,6 +293,71 @@ tr:last-child td {
   text-align: center;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.triangle-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #7a4a24;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 160ms ease;
+}
+
+.triangle-button:hover {
+  opacity: 0.85;
+}
+
+.triangle-button:active {
+  opacity: 0.55;
+}
+
+.triangle-button .triangle {
+  width: 0;
+  height: 0;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  border-left: 26px solid #7a4a24;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.stat-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  background: #ffffff;
+}
+
+.stat-card strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 34px;
+  color: #111827;
+  line-height: 1;
+}
+
+.stat-card span {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
 @media (max-width: 680px) {
   .page-header {
     align-items: flex-start;
@@ -283,6 +370,15 @@ tr:last-child td {
 
   .span-2 {
     grid-column: auto;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 
   h1 {

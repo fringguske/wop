@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AUTH_COOKIE_NAME, expectedCookieValue } from "./lib/auth";
+import { AUTH_COOKIE_NAME, isAuthConfigured, verifyAuthToken } from "./lib/auth";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -8,15 +8,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const cookie = request.cookies.get(AUTH_COOKIE_NAME)?.value;
-  const expected = await expectedCookieValue();
+  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+  const role = await verifyAuthToken(token);
 
-  if (!expected || cookie !== expected) {
+  if (!role) {
     const loginUrl = new URL("/login", request.url);
-    if (!expected) {
+    if (!(await isAuthConfigured())) {
       loginUrl.searchParams.set("error", "config");
     }
     return NextResponse.redirect(loginUrl);
+  }
+
+  if (pathname.startsWith("/register") && role !== "admin") {
+    return NextResponse.redirect(new URL("/attendees", request.url));
   }
 
   return NextResponse.next();

@@ -2,22 +2,38 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { AUTH_COOKIE_NAME, expectedCookieValue, hashPassword } from "@/lib/auth";
+import {
+  AUTH_COOKIE_NAME,
+  buildAuthToken,
+  expectedAdminHash,
+  expectedViewerHash,
+  hashPassword,
+  type Role,
+} from "@/lib/auth";
 
 export async function login(formData: FormData) {
-  const entered = formData.get("password") as string;
-  const expected = await expectedCookieValue();
+  const entered = (formData.get("password") as string) ?? "";
+  const enteredHash = await hashPassword(entered);
 
-  if (!expected) {
-    redirect("/login?error=config");
+  const adminHash = await expectedAdminHash();
+  const viewerHash = await expectedViewerHash();
+
+  let role: Role | null = null;
+  if (adminHash && enteredHash === adminHash) {
+    role = "admin";
+  } else if (viewerHash && enteredHash === viewerHash) {
+    role = "viewer";
   }
 
-  if ((await hashPassword(entered)) !== expected) {
+  if (!role) {
+    if (!adminHash && !viewerHash) {
+      redirect("/login?error=config");
+    }
     redirect("/login?error=1");
   }
 
   const cookieStore = await cookies();
-  cookieStore.set(AUTH_COOKIE_NAME, expected, {
+  cookieStore.set(AUTH_COOKIE_NAME, buildAuthToken(role, enteredHash), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -26,4 +42,10 @@ export async function login(formData: FormData) {
   });
 
   redirect("/attendees");
+}
+
+export async function logout() {
+  const cookieStore = await cookies();
+  cookieStore.delete(AUTH_COOKIE_NAME);
+  redirect("/login");
 }

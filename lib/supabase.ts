@@ -29,6 +29,7 @@ export type Attendee = {
   church: string | null;
   gender: string | null;
   category: string | null;
+  registration_amount: string | null;
   boarding: boolean;
   boarding_days: number | null;
   created_at: string;
@@ -41,6 +42,7 @@ export type AttendeeInsert = {
   church?: string | null;
   gender?: string | null;
   category?: string | null;
+  registration_amount?: string | null;
   boarding?: boolean;
   boarding_days?: number | null;
 };

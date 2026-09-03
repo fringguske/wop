@@ -1,9 +1,26 @@
-import { getSupabase, isSupabaseConfigured, Attendee } from "@/lib/supabase";
+import { cookies } from "next/headers";
 import Link from "next/link";
+import { AUTH_COOKIE_NAME, verifyAuthToken } from "@/lib/auth";
+import { getSupabase, isSupabaseConfigured, Attendee } from "@/lib/supabase";
+import LogoutButton from "../components/LogoutButton";
 
 export const dynamic = "force-dynamic";
 
+const timeZone = "Africa/Nairobi";
+
+function formatRegisteredAt(value: string) {
+  return new Date(value).toLocaleString("en-GB", {
+    timeZone,
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
 export default async function AttendeesPage() {
+  const token = (await cookies()).get(AUTH_COOKIE_NAME)?.value;
+  const role = await verifyAuthToken(token);
+  const showRegister = role === "admin";
+
   const { data, error } = isSupabaseConfigured()
     ? await getSupabase().from("attendees").select("*").order("created_at", { ascending: false })
     : { data: [], error: new Error("Supabase is not configured.") };
@@ -17,9 +34,18 @@ export default async function AttendeesPage() {
           <p className="eyebrow">Registered people</p>
           <h1>Attendees ({attendees.length})</h1>
         </div>
-        <Link className="primary-link" href="/register">
-          Register new
-        </Link>
+        <div className="header-actions">
+          <Link className="triangle-button" href="/statistics">
+            <span className="triangle" aria-hidden="true" />
+            View statistics
+          </Link>
+          {showRegister && (
+            <Link className="primary-link" href="/register">
+              Register new
+            </Link>
+          )}
+          <LogoutButton />
+        </div>
       </div>
 
       {error && <p className="status status--error">Could not load attendees.</p>}
@@ -34,6 +60,7 @@ export default async function AttendeesPage() {
               <th>Church</th>
               <th>Category</th>
               <th>Gender</th>
+              <th>Registration amount</th>
               <th>Boarding</th>
               <th>Boarding days</th>
               <th>Registered at</th>
@@ -48,13 +75,15 @@ export default async function AttendeesPage() {
                 <td>{attendee.church || "-"}</td>
                 <td>{attendee.category || "-"}</td>
                 <td>{attendee.gender || "-"}</td>
+                <td>{attendee.registration_amount || "-"}</td>
                 <td>{attendee.boarding ? "Yes" : "No"}</td>
                 <td>{attendee.boarding_days ?? "-"}</td>
-                <td>{new Date(attendee.created_at).toLocaleString()}</td> </tr>
+                <td>{formatRegisteredAt(attendee.created_at)}</td>
+              </tr>
             ))}
             {!attendees.length && (
               <tr>
-                <td colSpan={9} className="empty-row">
+                <td colSpan={10} className="empty-row">
                   No attendees registered yet.
                 </td>
               </tr>
