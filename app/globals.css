@@ -236,6 +236,29 @@ select:focus {
   font-weight: 700;
 }
 
+.delete-button {
+  min-height: 34px;
+  border: 1px solid #7a4a24;
+  border-radius: 0;
+  padding: 6px 12px;
+  background: #ffffff;
+  color: #7a4a24;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  transition: opacity 160ms ease;
+}
+
+.delete-button:hover {
+  opacity: 0.85;
+}
+
+.delete-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .status {
   border-radius: 6px;
   padding: 12px 14px;
