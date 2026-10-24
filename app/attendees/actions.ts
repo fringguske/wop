@@ -2,14 +2,14 @@
 
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { AUTH_COOKIE_NAME, verifyAuthToken } from "@/lib/auth";
+import { AUTH_COOKIE_NAME, canDelete, verifyAuthToken } from "@/lib/auth";
 import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export async function deleteAttendee(id: string): Promise<{ error?: string }> {
   const role = await verifyAuthToken((await cookies()).get(AUTH_COOKIE_NAME)?.value);
 
-  if (role !== "admin") {
-    return { error: "Only admins can delete attendees." };
+  if (!canDelete(role)) {
+    return { error: "Only the superuser can delete attendees." };
   }
 
   if (!isSupabaseConfigured()) {

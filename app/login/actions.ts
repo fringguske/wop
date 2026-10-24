@@ -6,6 +6,7 @@ import {
   AUTH_COOKIE_NAME,
   buildAuthToken,
   expectedAdminHash,
+  expectedSuperuserHash,
   expectedViewerHash,
   hashPassword,
   type Role,
@@ -15,18 +16,21 @@ export async function login(formData: FormData) {
   const entered = (formData.get("password") as string) ?? "";
   const enteredHash = await hashPassword(entered);
 
+  const superuserHash = await expectedSuperuserHash();
   const adminHash = await expectedAdminHash();
   const viewerHash = await expectedViewerHash();
 
   let role: Role | null = null;
-  if (adminHash && enteredHash === adminHash) {
+  if (superuserHash && enteredHash === superuserHash) {
+    role = "superuser";
+  } else if (adminHash && enteredHash === adminHash) {
     role = "admin";
   } else if (viewerHash && enteredHash === viewerHash) {
     role = "viewer";
   }
 
   if (!role) {
-    if (!adminHash && !viewerHash) {
+    if (!superuserHash && !adminHash && !viewerHash) {
       redirect("/login?error=config");
     }
     redirect("/login?error=1");

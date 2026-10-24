@@ -7,7 +7,15 @@ export async function hashPassword(password: string): Promise<string> {
 
 export const AUTH_COOKIE_NAME = "event_app_auth";
 
-export type Role = "viewer" | "admin";
+export type Role = "viewer" | "admin" | "superuser";
+
+export function canRegister(role: Role | null) {
+  return role === "admin" || role === "superuser";
+}
+
+export function canDelete(role: Role | null) {
+  return role === "superuser";
+}
 
 function viewerPassword() {
   return (
@@ -22,6 +30,10 @@ function adminPassword() {
   return process.env.APP_ADMIN_PASSWORD ?? process.env.OFFICER_PASSWORD;
 }
 
+function superuserPassword() {
+  return process.env.APP_SUPERUSER_PASSWORD;
+}
+
 export async function expectedViewerHash(): Promise<string | null> {
   const password = viewerPassword();
   return password ? hashPassword(password) : null;
@@ -32,8 +44,13 @@ export async function expectedAdminHash(): Promise<string | null> {
   return password ? hashPassword(password) : null;
 }
 
+export async function expectedSuperuserHash(): Promise<string | null> {
+  const password = superuserPassword();
+  return password ? hashPassword(password) : null;
+}
+
 export async function isAuthConfigured(): Promise<boolean> {
-  return Boolean((await expectedViewerHash()) || (await expectedAdminHash()));
+  return Boolean((await expectedViewerHash()) || (await expectedAdminHash()) || (await expectedSuperuserHash()));
 }
 
 export function buildAuthToken(role: Role, hash: string): string {
@@ -47,6 +64,7 @@ export async function verifyAuthToken(token: string | undefined | null): Promise
 
   const viewerHash = await expectedViewerHash();
   const adminHash = await expectedAdminHash();
+  const superuserHash = await expectedSuperuserHash();
 
   if (viewerHash && token === `viewer:${viewerHash}`) {
     return "viewer";
@@ -54,6 +72,10 @@ export async function verifyAuthToken(token: string | undefined | null): Promise
 
   if (adminHash && token === `admin:${adminHash}`) {
     return "admin";
+  }
+
+  if (superuserHash && token === `superuser:${superuserHash}`) {
+    return "superuser";
   }
 
   return null;

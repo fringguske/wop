@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { AUTH_COOKIE_NAME, verifyAuthToken } from "@/lib/auth";
+import { AUTH_COOKIE_NAME, canRegister, verifyAuthToken } from "@/lib/auth";
 import { cleanBoardingSchedule } from "@/lib/boarding";
 import { getSupabase, isSupabaseConfigured, type AttendeeInsert } from "@/lib/supabase";
 
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   const cookieStore = await cookies();
   const role = await verifyAuthToken(cookieStore.get(AUTH_COOKIE_NAME)?.value);
 
-  if (role !== "admin") {
+  if (!canRegister(role)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

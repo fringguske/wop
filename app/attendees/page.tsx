@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { AUTH_COOKIE_NAME, verifyAuthToken } from "@/lib/auth";
+import { AUTH_COOKIE_NAME, canDelete, canRegister, verifyAuthToken } from "@/lib/auth";
 import { getSupabase, isSupabaseConfigured, Attendee } from "@/lib/supabase";
 import LogoutButton from "../components/LogoutButton";
 import DeleteAttendeeButton from "./DeleteAttendeeButton";
@@ -20,7 +20,8 @@ function formatRegisteredAt(value: string) {
 export default async function AttendeesPage() {
   const token = (await cookies()).get(AUTH_COOKIE_NAME)?.value;
   const role = await verifyAuthToken(token);
-  const isAdmin = role === "admin";
+  const showRegister = canRegister(role);
+  const showDelete = canDelete(role);
 
   const { data, error } = isSupabaseConfigured()
     ? await getSupabase().from("attendees").select("*").order("created_at", { ascending: false })
@@ -42,7 +43,7 @@ export default async function AttendeesPage() {
           <Link className="secondary-link" href="/statistics">
             View statistics
           </Link>
-          {isAdmin && (
+          {showRegister && (
             <Link className="primary-link" href="/register">
               Register new
             </Link>
@@ -67,7 +68,7 @@ export default async function AttendeesPage() {
               <th>Boarding</th>
               <th>Boarding days</th>
               <th>Registered at</th>
-              {isAdmin && <th aria-label="Actions" />}
+              {showDelete && <th aria-label="Actions" />}
             </tr>
           </thead>
           <tbody>
@@ -83,7 +84,7 @@ export default async function AttendeesPage() {
                 <td>{attendee.boarding ? "Yes" : "No"}</td>
                 <td>{attendee.boarding_schedule?.length ? attendee.boarding_schedule.join(", ") : attendee.boarding_days ?? "-"}</td>
                 <td>{formatRegisteredAt(attendee.created_at)}</td>
-                {isAdmin && (
+                {showDelete && (
                   <td>
                     <DeleteAttendeeButton id={attendee.id} name={attendee.full_name} />
                   </td>
@@ -92,7 +93,7 @@ export default async function AttendeesPage() {
             ))}
             {!attendees.length && (
               <tr>
-                <td colSpan={isAdmin ? 11 : 10} className="empty-row">
+                <td colSpan={showDelete ? 11 : 10} className="empty-row">
                   No attendees registered yet.
                 </td>
               </tr>
