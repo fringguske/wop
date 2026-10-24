@@ -18,3 +18,5 @@ alter table public.attendees add column if not exists boarding_days integer;
 alter table public.attendees alter column boarding set default false;
 
 alter table public.attendees add column if not exists registration_amount text;
+
+alter table public.attendees add column if not exists boarding_schedule text[] not null default '{}';

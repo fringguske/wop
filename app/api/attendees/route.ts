@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { AUTH_COOKIE_NAME, verifyAuthToken } from "@/lib/auth";
+import { cleanBoardingSchedule } from "@/lib/boarding";
 import { getSupabase, isSupabaseConfigured, type AttendeeInsert } from "@/lib/supabase";
 
 function cleanText(value: unknown) {
@@ -27,7 +28,12 @@ export async function POST(request: Request) {
   }
 
   const boarding = body.boarding === true;
-  const boardingDaysValue = Number(body.boarding_days);
+  const boardingSchedule = boarding ? cleanBoardingSchedule(body.boarding_schedule) : [];
+
+  if (boarding && !boardingSchedule.length) {
+    return NextResponse.json({ error: "Select at least one boarding day" }, { status: 400 });
+  }
+
   const attendee: AttendeeInsert = {
     full_name: fullName,
     phone_number: cleanText(body.phone_number),
@@ -37,7 +43,8 @@ export async function POST(request: Request) {
     category: cleanText(body.category),
     registration_amount: cleanText(body.registration_amount),
     boarding,
-    boarding_days: boarding && Number.isFinite(boardingDaysValue) ? boardingDaysValue : null,
+    boarding_days: boarding ? boardingSchedule.length : null,
+    boarding_schedule: boardingSchedule,
   };
 
   const { error } = await getSupabase().from("attendees").insert(attendee);

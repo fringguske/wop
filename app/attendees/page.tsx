@@ -35,8 +35,10 @@ export default async function AttendeesPage() {
           <h1>Attendees ({attendees.length})</h1>
         </div>
         <div className="header-actions">
-          <Link className="triangle-button" href="/statistics">
-            <span className="triangle" aria-hidden="true" />
+          <a className="secondary-link" href="/api/attendees/export" download>
+            Download CSV
+          </a>
+          <Link className="secondary-link" href="/statistics">
             View statistics
           </Link>
           {showRegister && (
@@ -77,7 +79,7 @@ export default async function AttendeesPage() {
                 <td>{attendee.gender || "-"}</td>
                 <td>{attendee.registration_amount || "-"}</td>
                 <td>{attendee.boarding ? "Yes" : "No"}</td>
-                <td>{attendee.boarding_days ?? "-"}</td>
+                <td>{attendee.boarding_schedule?.length ? attendee.boarding_schedule.join(", ") : attendee.boarding_days ?? "-"}</td>
                 <td>{formatRegisteredAt(attendee.created_at)}</td>
               </tr>
             ))}

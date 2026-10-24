@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { BOARDING_DAYS } from "@/lib/boarding";
 import type { AttendeeInsert } from "@/lib/supabase";
 
 const categories = ["Delegate", "Worker", "Clergy", "Guest", "Usher", "Choir", "Protocol", "Media", "Security"];
@@ -19,6 +20,7 @@ function formValue(formData: FormData, name: string) {
 
 export default function RegisterForm() {
   const [boarding, setBoarding] = useState("no");
+  const [boardingDaysError, setBoardingDaysError] = useState(false);
   const [queue, setQueue] = useState<QueuedRegistration[]>([]);
   const uploadingRef = useRef(false);
 
@@ -40,7 +42,7 @@ export default function RegisterForm() {
           gender: registration.gender,
           registration_amount: registration.registration_amount,
           boarding: registration.boarding,
-          boarding_days: registration.boarding_days,
+          boarding_schedule: registration.boarding_schedule,
         }),
       });
 
@@ -87,7 +89,12 @@ export default function RegisterForm() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const isBoarding = formValue(formData, "boarding") === "yes";
-    const boardingDaysValue = Number(formValue(formData, "boarding_days"));
+    const boardingSchedule = isBoarding ? formData.getAll("boarding_schedule").map(String) : [];
+
+    if (isBoarding && !boardingSchedule.length) {
+      setBoardingDaysError(true);
+      return;
+    }
 
     const registration: QueuedRegistration = {
       id: crypto.randomUUID(),
@@ -99,13 +106,15 @@ export default function RegisterForm() {
       gender: formValue(formData, "gender") || null,
       registration_amount: formValue(formData, "registration_amount") || null,
       boarding: isBoarding,
-      boarding_days: isBoarding && Number.isFinite(boardingDaysValue) ? boardingDaysValue : null,
+      boarding_days: isBoarding ? boardingSchedule.length : null,
+      boarding_schedule: boardingSchedule,
       status: "pending",
     };
 
     setQueue((current) => [...current, registration]);
     form.reset();
     setBoarding("no");
+    setBoardingDaysError(false);
   }
 
   function retryRegistration(id: string) {
@@ -176,10 +185,18 @@ export default function RegisterForm() {
         </label>
 
         {boarding === "yes" && (
-          <label>
-            Boarding days
-            <input name="boarding_days" type="number" min="1" step="1" required />
-          </label>
+          <fieldset className="day-picker span-2" onChange={() => setBoardingDaysError(false)}>
+            <legend>Boarding days</legend>
+            <div className="day-options">
+              {BOARDING_DAYS.map((day) => (
+                <label className="day-option" key={day}>
+                  <input name="boarding_schedule" type="checkbox" value={day} />
+                  {day}
+                </label>
+              ))}
+            </div>
+            {boardingDaysError && <small>Select at least one day.</small>}
+          </fieldset>
         )}
 
         <button className="primary-button span-2" type="submit">

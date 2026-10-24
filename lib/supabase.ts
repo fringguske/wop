@@ -32,6 +32,7 @@ export type Attendee = {
   registration_amount: string | null;
   boarding: boolean;
   boarding_days: number | null;
+  boarding_schedule: string[] | null;
   created_at: string;
 };
 
@@ -45,6 +46,7 @@ export type AttendeeInsert = {
   registration_amount?: string | null;
   boarding?: boolean;
   boarding_days?: number | null;
+  boarding_schedule?: string[];
 };
 
 type Database = {
