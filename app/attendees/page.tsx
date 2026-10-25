@@ -24,7 +24,7 @@ export default async function AttendeesPage() {
   const showDelete = canDelete(role);
 
   const { data, error } = isSupabaseConfigured()
-    ? await getSupabase().from("attendees").select("*").order("created_at", { ascending: false })
+    ? await getSupabase().from("attendees").select("*").order("created_at", { ascending: true })
     : { data: [], error: new Error("Supabase is not configured.") };
 
   const attendees = (data ?? []) as Attendee[];
@@ -75,8 +75,7 @@ export default async function AttendeesPage() {
           <tbody>
             {attendees.map((attendee, index) => (
               <tr key={attendee.id}>
-                {/* Newest is listed first, so count down to keep the first registration as number 1. */}
-                <td>{attendees.length - index}</td>
+                <td>{index + 1}</td>
                 <td>{attendee.full_name}</td>
                 <td>{attendee.phone_number || "-"}</td>
                 <td>{attendee.address || "-"}</td>
