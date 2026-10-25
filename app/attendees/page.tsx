@@ -58,6 +58,7 @@ export default async function AttendeesPage() {
         <table>
           <thead>
             <tr>
+              <th>No.</th>
               <th>Full name</th>
               <th>Phone number</th>
               <th>Address</th>
@@ -72,8 +73,10 @@ export default async function AttendeesPage() {
             </tr>
           </thead>
           <tbody>
-            {attendees.map((attendee) => (
+            {attendees.map((attendee, index) => (
               <tr key={attendee.id}>
+                {/* Newest is listed first, so count down to keep the first registration as number 1. */}
+                <td>{attendees.length - index}</td>
                 <td>{attendee.full_name}</td>
                 <td>{attendee.phone_number || "-"}</td>
                 <td>{attendee.address || "-"}</td>
@@ -93,7 +96,7 @@ export default async function AttendeesPage() {
             ))}
             {!attendees.length && (
               <tr>
-                <td colSpan={showDelete ? 11 : 10} className="empty-row">
+                <td colSpan={showDelete ? 12 : 11} className="empty-row">
                   No attendees registered yet.
                 </td>
               </tr>
