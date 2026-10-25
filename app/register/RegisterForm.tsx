@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { BOARDING_DAYS } from "@/lib/boarding";
 import type { AttendeeInsert } from "@/lib/supabase";
+import AttendeeFields, { readAttendeeForm } from "../components/AttendeeFields";
 
-const categories = ["Delegate", "Worker", "Clergy", "Guest", "Usher", "Choir", "Protocol", "Media", "Security"];
 type UploadStatus = "pending" | "uploading" | "successful" | "failed";
 type QueuedRegistration = AttendeeInsert & {
   id: string;
@@ -13,13 +12,9 @@ type QueuedRegistration = AttendeeInsert & {
   error?: string;
 };
 
-function formValue(formData: FormData, name: string) {
-  const value = formData.get(name);
-  return typeof value === "string" ? value.trim() : "";
-}
-
 export default function RegisterForm() {
-  const [boarding, setBoarding] = useState("no");
+  // Changing the key clears the form fields, including the boarding days and children.
+  const [formKey, setFormKey] = useState(0);
   const [boardingDaysError, setBoardingDaysError] = useState(false);
   const [queue, setQueue] = useState<QueuedRegistration[]>([]);
   const uploadingRef = useRef(false);
@@ -43,6 +38,7 @@ export default function RegisterForm() {
           registration_amount: registration.registration_amount,
           boarding: registration.boarding,
           boarding_schedule: registration.boarding_schedule,
+          children: registration.children,
         }),
       });
 
@@ -86,34 +82,19 @@ export default function RegisterForm() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const isBoarding = formValue(formData, "boarding") === "yes";
-    const boardingSchedule = isBoarding ? formData.getAll("boarding_schedule").map(String) : [];
+    const registration: QueuedRegistration = {
+      ...readAttendeeForm(new FormData(event.currentTarget)),
+      id: crypto.randomUUID(),
+      status: "pending",
+    };
 
-    if (isBoarding && !boardingSchedule.length) {
+    if (registration.boarding && !registration.boarding_schedule?.length) {
       setBoardingDaysError(true);
       return;
     }
 
-    const registration: QueuedRegistration = {
-      id: crypto.randomUUID(),
-      full_name: formValue(formData, "full_name"),
-      phone_number: formValue(formData, "phone_number") || null,
-      address: formValue(formData, "address") || null,
-      church: formValue(formData, "church") || null,
-      category: formValue(formData, "category") || null,
-      gender: formValue(formData, "gender") || null,
-      registration_amount: formValue(formData, "registration_amount") || null,
-      boarding: isBoarding,
-      boarding_days: isBoarding ? boardingSchedule.length : null,
-      boarding_schedule: boardingSchedule,
-      status: "pending",
-    };
-
     setQueue((current) => [...current, registration]);
-    form.reset();
-    setBoarding("no");
+    setFormKey((current) => current + 1);
     setBoardingDaysError(false);
   }
 
@@ -126,78 +107,11 @@ export default function RegisterForm() {
   return (
     <>
       <form className="form-grid" onSubmit={handleSubmit}>
-        <label>
-          Full name
-          <input name="full_name" autoComplete="name" required />
-        </label>
-
-        <label>
-          Phone number
-          <input name="phone_number" autoComplete="tel" required />
-        </label>
-
-        <label className="span-2">
-          Address
-          <input name="address" autoComplete="street-address" />
-        </label>
-
-        <label>
-          Church
-          <input name="church" />
-        </label>
-
-        <label>
-          Category
-          <select name="category" defaultValue="" required>
-            <option value="" disabled>
-              Select category
-            </option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          Gender
-          <select name="gender" defaultValue="" required>
-            <option value="" disabled>
-              Select gender
-            </option>
-            <option value="Female">Female</option>
-            <option value="Male">Male</option>
-          </select>
-        </label>
-
-        <label>
-          Registration amount
-          <input name="registration_amount" inputMode="decimal" />
-        </label>
-
-        <label>
-          Boarding
-          <select name="boarding" value={boarding} onChange={(event) => setBoarding(event.target.value)} required>
-            <option value="no">No</option>
-            <option value="yes">Yes</option>
-          </select>
-        </label>
-
-        {boarding === "yes" && (
-          <fieldset className="day-picker span-2" onChange={() => setBoardingDaysError(false)}>
-            <legend>Boarding days</legend>
-            <div className="day-options">
-              {BOARDING_DAYS.map((day) => (
-                <label className="day-option" key={day}>
-                  <input name="boarding_schedule" type="checkbox" value={day} />
-                  {day}
-                </label>
-              ))}
-            </div>
-            {boardingDaysError && <small>Select at least one day.</small>}
-          </fieldset>
-        )}
+        <AttendeeFields
+          key={formKey}
+          boardingDaysError={boardingDaysError}
+          onBoardingDaysChange={() => setBoardingDaysError(false)}
+        />
 
         <button className="primary-button span-2" type="submit">
           Save attendee

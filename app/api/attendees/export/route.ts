@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { formatChildren } from "@/lib/attendees";
 import { AUTH_COOKIE_NAME, verifyAuthToken } from "@/lib/auth";
 import { getSupabase, isSupabaseConfigured, type Attendee } from "@/lib/supabase";
 
@@ -18,6 +19,8 @@ const columns: [string, (attendee: Attendee) => string | number | null][] = [
   ["Boarding", (attendee) => (attendee.boarding ? "Yes" : "No")],
   ["Boarding days", (attendee) => attendee.boarding_days],
   ["Boarding schedule", (attendee) => attendee.boarding_schedule?.join(", ") || null],
+  ["Children count", (attendee) => attendee.children?.length ?? 0],
+  ["Children", (attendee) => formatChildren(attendee.children) || null],
   [
     "Registered at",
     (attendee) =>

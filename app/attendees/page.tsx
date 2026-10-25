@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { AUTH_COOKIE_NAME, canDelete, canRegister, verifyAuthToken } from "@/lib/auth";
+import { formatChildren } from "@/lib/attendees";
+import { AUTH_COOKIE_NAME, canDelete, canEdit, canRegister, verifyAuthToken } from "@/lib/auth";
 import { getSupabase, isSupabaseConfigured, Attendee } from "@/lib/supabase";
 import LogoutButton from "../components/LogoutButton";
 import DeleteAttendeeButton from "./DeleteAttendeeButton";
@@ -21,7 +22,9 @@ export default async function AttendeesPage() {
   const token = (await cookies()).get(AUTH_COOKIE_NAME)?.value;
   const role = await verifyAuthToken(token);
   const showRegister = canRegister(role);
+  const showEdit = canEdit(role);
   const showDelete = canDelete(role);
+  const showActions = showEdit || showDelete;
 
   const { data, error } = isSupabaseConfigured()
     ? await getSupabase().from("attendees").select("*").order("created_at", { ascending: true })
@@ -68,8 +71,9 @@ export default async function AttendeesPage() {
               <th>Registration amount</th>
               <th>Boarding</th>
               <th>Boarding days</th>
+              <th>Children</th>
               <th>Registered at</th>
-              {showDelete && <th aria-label="Actions" />}
+              {showActions && <th aria-label="Actions" />}
             </tr>
           </thead>
           <tbody>
@@ -85,17 +89,25 @@ export default async function AttendeesPage() {
                 <td>{attendee.registration_amount || "-"}</td>
                 <td>{attendee.boarding ? "Yes" : "No"}</td>
                 <td>{attendee.boarding_schedule?.length ? attendee.boarding_schedule.join(", ") : attendee.boarding_days ?? "-"}</td>
+                <td>{formatChildren(attendee.children) || "-"}</td>
                 <td>{formatRegisteredAt(attendee.created_at)}</td>
-                {showDelete && (
+                {showActions && (
                   <td>
-                    <DeleteAttendeeButton id={attendee.id} name={attendee.full_name} />
+                    <div className="row-actions">
+                      {showEdit && (
+                        <Link className="edit-link" href={`/attendees/${attendee.id}/edit`}>
+                          Edit
+                        </Link>
+                      )}
+                      {showDelete && <DeleteAttendeeButton id={attendee.id} name={attendee.full_name} />}
+                    </div>
                   </td>
                 )}
               </tr>
             ))}
             {!attendees.length && (
               <tr>
-                <td colSpan={showDelete ? 12 : 11} className="empty-row">
+                <td colSpan={showActions ? 13 : 12} className="empty-row">
                   No attendees registered yet.
                 </td>
               </tr>

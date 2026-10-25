@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AUTH_COOKIE_NAME, canRegister, isAuthConfigured, verifyAuthToken } from "./lib/auth";
+import { AUTH_COOKIE_NAME, canEdit, canRegister, isAuthConfigured, verifyAuthToken } from "./lib/auth";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -20,6 +20,10 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/register") && !canRegister(role)) {
+    return NextResponse.redirect(new URL("/attendees", request.url));
+  }
+
+  if (/^\/attendees\/[^/]+\/edit/.test(pathname) && !canEdit(role)) {
     return NextResponse.redirect(new URL("/attendees", request.url));
   }
 

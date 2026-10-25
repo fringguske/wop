@@ -21,6 +21,12 @@ export function getSupabase(): SupabaseClient<Database> {
   return client;
 }
 
+export type Child = {
+  name: string;
+  age: number | null;
+  gender: string | null;
+};
+
 export type Attendee = {
   id: string;
   full_name: string;
@@ -33,6 +39,7 @@ export type Attendee = {
   boarding: boolean;
   boarding_days: number | null;
   boarding_schedule: string[] | null;
+  children: Child[] | null;
   created_at: string;
 };
 
@@ -47,6 +54,7 @@ export type AttendeeInsert = {
   boarding?: boolean;
   boarding_days?: number | null;
   boarding_schedule?: string[];
+  children?: Child[];
 };
 
 type Database = {

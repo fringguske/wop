@@ -13,6 +13,10 @@ export function canRegister(role: Role | null) {
   return role === "admin" || role === "superuser";
 }
 
+export function canEdit(role: Role | null) {
+  return role === "superuser";
+}
+
 export function canDelete(role: Role | null) {
   return role === "superuser";
 }

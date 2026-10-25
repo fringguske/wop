@@ -7,10 +7,12 @@ export const dynamic = "force-dynamic";
 
 export default async function StatisticsPage() {
   const { data, error } = isSupabaseConfigured()
-    ? await getSupabase().from("attendees").select("id, gender, boarding, boarding_schedule")
+    ? await getSupabase().from("attendees").select("id, gender, boarding, boarding_schedule, children")
     : { data: [], error: new Error("Supabase is not configured.") };
 
-  const attendees = (data ?? []) as Pick<Attendee, "id" | "gender" | "boarding" | "boarding_schedule">[];
+  const attendees = (data ?? []) as Pick<Attendee, "id" | "gender" | "boarding" | "boarding_schedule" | "children">[];
+  const countChildren = (list: typeof attendees) =>
+    list.reduce((sum, attendee) => sum + (attendee.children?.length ?? 0), 0);
 
   const total = attendees.length;
   const men = attendees.filter((attendee) => attendee.gender === "Male").length;
@@ -18,15 +20,20 @@ export default async function StatisticsPage() {
   const boarding = attendees.filter((attendee) => attendee.boarding).length;
   const boardingMen = attendees.filter((attendee) => attendee.gender === "Male" && attendee.boarding).length;
   const boardingWomen = attendees.filter((attendee) => attendee.gender === "Female" && attendee.boarding).length;
+  const children = countChildren(attendees);
+  const boardingChildren = countChildren(attendees.filter((attendee) => attendee.boarding));
 
   const dailyBoarding = BOARDING_DAYS.map((day) => {
     const boarders = attendees.filter((attendee) => attendee.boarding && attendee.boarding_schedule?.includes(day));
+    // Children board on the same days as their parent.
+    const boardingChildren = countChildren(boarders);
 
     return {
       day,
       men: boarders.filter((attendee) => attendee.gender === "Male").length,
       women: boarders.filter((attendee) => attendee.gender === "Female").length,
-      total: boarders.length,
+      children: boardingChildren,
+      total: boarders.length + boardingChildren,
     };
   });
 
@@ -72,6 +79,14 @@ export default async function StatisticsPage() {
           <strong>{boardingWomen}</strong>
           <span>Boarding women</span>
         </div>
+        <div className="stat-card">
+          <strong>{children}</strong>
+          <span>Children</span>
+        </div>
+        <div className="stat-card">
+          <strong>{boardingChildren}</strong>
+          <span>Boarding children</span>
+        </div>
       </div>
 
       <h2 className="section-title">Expected boarding per day</h2>
@@ -82,6 +97,7 @@ export default async function StatisticsPage() {
               <th>Day</th>
               <th>Men</th>
               <th>Women</th>
+              <th>Children</th>
               <th>Total</th>
             </tr>
           </thead>
@@ -91,6 +107,7 @@ export default async function StatisticsPage() {
                 <td>{row.day}</td>
                 <td>{row.men}</td>
                 <td>{row.women}</td>
+                <td>{row.children}</td>
                 <td>
                   <strong>{row.total}</strong>
                 </td>
