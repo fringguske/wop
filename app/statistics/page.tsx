@@ -166,6 +166,7 @@ export default async function StatisticsPage() {
           <thead>
             <tr>
               <th>Date</th>
+              <th>Day</th>
               <th>Men</th>
               <th>Women</th>
               <th>Children</th>
@@ -177,6 +178,7 @@ export default async function StatisticsPage() {
               <tr key={row.date}>
                 {/* Keep day and month together, so on phones only the year wraps. */}
                 <td>{formatDate(row.date, { dateStyle: "medium" }).replace(" ", " ")}</td>
+                <td>{formatDate(row.date, { weekday: "long" })}</td>
                 <td>{row.men}</td>
                 <td>{row.women}</td>
                 <td>{row.children}</td>
@@ -187,7 +189,7 @@ export default async function StatisticsPage() {
             ))}
             {!dailyRegistrations.length && (
               <tr>
-                <td colSpan={5} className="empty-row">
+                <td colSpan={6} className="empty-row">
                   No attendees registered yet.
                 </td>
               </tr>
@@ -197,6 +199,7 @@ export default async function StatisticsPage() {
             <tfoot>
               <tr>
                 <td>All&nbsp;days</td>
+                <td />
                 <td>{men}</td>
                 <td>{women}</td>
                 <td>{children}</td>
