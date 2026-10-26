@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { countChildren } from "@/lib/attendees";
 import { BOARDING_DAYS } from "@/lib/boarding";
 import { getSupabase, isSupabaseConfigured, Attendee } from "@/lib/supabase";
 import LogoutButton from "../components/LogoutButton";
@@ -36,16 +37,14 @@ export default async function StatisticsPage() {
     Attendee,
     "id" | "gender" | "boarding" | "boarding_schedule" | "children" | "created_at"
   >[];
-  const countChildren = (list: typeof attendees) =>
-    list.reduce((sum, attendee) => sum + (attendee.children?.length ?? 0), 0);
-
-  const total = attendees.length;
+  const children = countChildren(attendees);
+  // Children attending with someone count as people too.
+  const total = attendees.length + children;
   const men = attendees.filter((attendee) => attendee.gender === "Male").length;
   const women = attendees.filter((attendee) => attendee.gender === "Female").length;
   const boarding = attendees.filter((attendee) => attendee.boarding).length;
   const boardingMen = attendees.filter((attendee) => attendee.gender === "Male" && attendee.boarding).length;
   const boardingWomen = attendees.filter((attendee) => attendee.gender === "Female" && attendee.boarding).length;
-  const children = countChildren(attendees);
   const boardingChildren = countChildren(attendees.filter((attendee) => attendee.boarding));
 
   const dailyBoarding = BOARDING_DAYS.map((day) => {
@@ -203,7 +202,7 @@ export default async function StatisticsPage() {
                 <td>{men}</td>
                 <td>{women}</td>
                 <td>{children}</td>
-                <td>{total + children}</td>
+                <td>{total}</td>
               </tr>
             </tfoot>
           )}

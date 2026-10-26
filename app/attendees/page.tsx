@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { formatChildren } from "@/lib/attendees";
+import { countChildren, formatChildren } from "@/lib/attendees";
 import { AUTH_COOKIE_NAME, canDelete, canEdit, canRegister, verifyAuthToken } from "@/lib/auth";
 import { getSupabase, isSupabaseConfigured, Attendee } from "@/lib/supabase";
 import LogoutButton from "../components/LogoutButton";
@@ -31,13 +31,15 @@ export default async function AttendeesPage() {
     : { data: [], error: new Error("Supabase is not configured.") };
 
   const attendees = (data ?? []) as Attendee[];
+  // Children attending with someone count as people too.
+  const totalPeople = attendees.length + countChildren(attendees);
 
   return (
     <main className="page-shell page-shell--wide">
       <div className="page-header">
         <div>
           <p className="eyebrow">Registered people</p>
-          <h1>Attendees ({attendees.length})</h1>
+          <h1>Attendees ({totalPeople})</h1>
         </div>
         <div className="header-actions">
           <a className="secondary-link" href="/api/attendees/export" download>

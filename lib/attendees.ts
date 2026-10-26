@@ -57,6 +57,10 @@ export function cleanAttendee(body: Record<string, unknown>): { attendee: Attend
   };
 }
 
+export function countChildren(attendees: { children: Child[] | null }[]) {
+  return attendees.reduce((sum, attendee) => sum + (attendee.children?.length ?? 0), 0);
+}
+
 export function formatChildren(children: Child[] | null | undefined) {
   return (children ?? [])
     .map((child) => {
