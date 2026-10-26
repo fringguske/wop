@@ -225,7 +225,7 @@ export default async function StatisticsPage() {
                     <span>{row.total}</span>
                   </div>
                 </div>
-                <span className="bar-chart-label">{formatDate(row.date, { day: "numeric", month: "short" })}</span>
+                <span className="bar-chart-label">{formatDate(row.date, { weekday: "long" })}</span>
               </div>
             ))}
           </div>
