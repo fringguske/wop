@@ -393,6 +393,68 @@ tr:last-child td {
   min-width: 0;
 }
 
+tfoot td {
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 0;
+  background: #f9fafb;
+  font-weight: 700;
+}
+
+.bar-chart {
+  display: flex;
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.bar-chart-column {
+  flex: 1 0 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.bar-chart-track {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 220px;
+  padding-top: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.bar-chart-bar {
+  position: relative;
+  width: 24px;
+  border-radius: 4px 4px 0 0;
+  background: #9a5a28;
+}
+
+.bar-chart-column:hover .bar-chart-bar {
+  background: #7a4a24;
+}
+
+.bar-chart-bar span {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-bottom: 4px;
+  transform: translateX(-50%);
+  color: #111827;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.bar-chart-label {
+  color: #6b7280;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .day-picker {
   margin: 0;
   border: 0;
