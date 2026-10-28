@@ -43,7 +43,7 @@ export default async function AttendeesPage() {
         </div>
         <div className="header-actions">
           <a className="secondary-link" href="/api/attendees/export" download>
-            Download CSV
+            Download Excel
           </a>
           <Link className="secondary-link" href="/statistics">
             View statistics

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { formatChildren } from "@/lib/attendees";
 import { AUTH_COOKIE_NAME, verifyAuthToken } from "@/lib/auth";
 import { getSupabase, isSupabaseConfigured, type Attendee } from "@/lib/supabase";
+import { buildXlsx } from "@/lib/xlsx";
 
 export const dynamic = "force-dynamic";
 
@@ -28,17 +29,6 @@ const columns: [string, (attendee: Attendee) => string | number | null][] = [
   ],
 ];
 
-function csvCell(value: string | number | null) {
-  let text = value === null || value === undefined ? "" : String(value);
-
-  // Stop spreadsheet apps from running cell text as a formula, but leave phone numbers like +254... alone.
-  if (/^[=+\-@\t\r]/.test(text) && !/^[+-]?[\d\s()-]+$/.test(text)) {
-    text = `'${text}`;
-  }
-
-  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-}
-
 export async function GET() {
   const cookieStore = await cookies();
   const role = await verifyAuthToken(cookieStore.get(AUTH_COOKIE_NAME)?.value);
@@ -58,16 +48,16 @@ export async function GET() {
   }
 
   const rows = [
-    columns.map(([header]) => csvCell(header)).join(","),
-    ...(data ?? []).map((attendee) => columns.map(([, read]) => csvCell(read(attendee))).join(",")),
+    columns.map(([header]) => header),
+    ...(data ?? []).map((attendee) => columns.map(([, read]) => read(attendee))),
   ];
   const date = new Date().toLocaleDateString("en-CA", { timeZone });
 
-  // The BOM makes Excel open the file as UTF-8.
-  return new NextResponse(`﻿${rows.join("\r\n")}\r\n`, {
+  // A real Excel file rather than CSV, because Excel's phone apps report CSV downloads as corrupted.
+  return new NextResponse(new Uint8Array(buildXlsx("Attendees", rows)), {
     headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="attendees-${date}.csv"`,
+      "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "Content-Disposition": `attachment; filename="attendees-${date}.xlsx"`,
       "Cache-Control": "no-store",
     },
   });
